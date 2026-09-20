@@ -32,18 +32,18 @@ Siguiente paso: enriquecer los destinos con información geográfica y turístic
 
 El primer dataset tiene 10 destinos:
 
-| ID  | Ciudad        | País           |
-| --- | ------------- | -------------- |
-| MAD | Madrid        | España         |
-| NYC | Nueva York    | Estados Unidos |
-| ZNZ | Zanzíbar      | Tanzania       |
-| MRU | Mauricio      | Mauricio       |
-| TYO | Tokio         | Japón          |
-| RAK | Marrakech     | Marruecos      |
-| SYD | Sídney        | Australia      |
-| REK | Reikiavik     | Islandia       |
-| IPC | Isla de Pascua | Chile         |
-| BKK | Bangkok       | Tailandia      |
+| ID  | Ciudad          | País                 |
+| --- | --------------- | -------------------- |
+| MAD | Madrid          | España               |
+| NYC | Nueva York      | Estados Unidos       |
+| ZNZ | Zanzíbar        | Tanzania             |
+| MRU | Mauricio        | Mauricio             |
+| MLE | Malé (Maldivas) | Maldivas             |
+| PDC | Playa del Carmen| México               |
+| SYD | Sídney          | Australia            |
+| DPS | Bali            | Indonesia            |
+| PUJ | Punta Cana      | República Dominicana |
+| BKK | Bangkok         | Tailandia            |
 
 La lista es pequeña a propósito. Prefiero montar bien el pipeline antes de escalarlo a un catálogo más grande.
 
@@ -209,13 +209,13 @@ Indica si la temperatura media histórica está entre 18 °C y 28 °C.
 
 `temperature_distance`
 
-Distancia absoluta a 23 °C.
+Distancia absoluta a 25 °C.
 
 `temperature_score`
 
-Puntuación de 0 a 100 según la distancia a 23 °C.
+Puntuación de 0 a 100 según la distancia a 25 °C.
 
-La escala actual toma ±10 °C respecto a 23 °C como los límites de la puntuación.
+La escala actual toma ±10 °C respecto a 25 °C como los límites de la puntuación.
 
 ---
 
@@ -468,3 +468,11 @@ La aplicación final es solo la parte visible de un pipeline de datos mucho más
 > Dado un destino y un mes, construir un perfil climático fiable que se pueda comparar con el de otros destinos.
 
 Cuando esa base esté sólida, el proyecto podrá crecer hasta convertirse en el sistema completo de recomendación de viajes.
+
+
+### Atribución
+
+Los datos meteorológicos proceden de [Open-Meteo.com](https://open-meteo.com/) y se
+distribuyen bajo licencia [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+Los datos diarios originales se han agregado a nivel mensual y se han usado para
+calcular variables derivadas (puntuaciones de temperatura, lluvia, sol y viento).
