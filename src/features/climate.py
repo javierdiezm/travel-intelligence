@@ -47,24 +47,9 @@ weather['wind_score'] = (
     100 - ((weather['wind_speed_max_avg'] - 10) / 20 * 100)
 ).clip(0, 100)
 
-print(
-    weather[
-        weather['destination_id'].isin(['MAD', 'BKK', 'REK', 'ZNZ', 'IPC'])
-    ][
-        [
-            'destination_id',
-            'month',
-            'temperature_mean',
-            'temperature_distance',
-            'temperature_score'
-        ]
-    ].to_string(index=False)
-)
-
 # =========================
 # 6. Guardar features clima
 # =========================
-
 output_file = 'data/processed/climate_features.csv'
 
 weather.to_csv(

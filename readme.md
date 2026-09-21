@@ -23,8 +23,10 @@ La primera versión del pipeline de clima ya funciona:
 * Ingeniería de variables climáticas
 * Comprobaciones básicas de calidad de datos
 * Datasets procesados guardados en CSV
+* Emparejamiento de los destinos con Wikidata (ID, descripción, población y coordenadas)
 
-Siguiente paso: enriquecer los destinos con información geográfica y turística usando OpenStreetMap / Overpass y otras fuentes estructuradas.
+
+Siguiente paso: usar esos identificadores para enriquecer los destinos con información geográfica y turística mediante OpenStreetMap / Overpass y otras fuentes estructuradas.
 
 ---
 
@@ -38,7 +40,7 @@ El primer dataset tiene 10 destinos:
 | NYC | Nueva York      | Estados Unidos       |
 | ZNZ | Zanzíbar        | Tanzania             |
 | MRU | Mauricio        | Mauricio             |
-| MLE | Malé (Maldivas) | Maldivas             |
+| MLE | Malé            | Maldivas             |
 | PDC | Playa del Carmen| México               |
 | SYD | Sídney          | Australia            |
 | DPS | Bali            | Indonesia            |
@@ -93,15 +95,20 @@ travel-intelligence/
 │   │   ├── weather/
 │   │   └── weather_historical/
 │   │
+│   ├── reference/
+│   │   └── destination_sources.csv
+│   │
 │   └── processed/
 │       ├── weather_daily.csv
+│       ├── weather_historical_daily.csv
 │       ├── weather_historical_monthly.csv
 │       └── climate_features.csv
 │
 ├── src/
 │   ├── ingestion/
 │   │   ├── weather.py
-│   │   └── historical_weather.py
+│   │   ├── historical_weather.py
+│   │   └── wikidata.py
 │   │
 │   ├── transformation/
 │   │   ├── weather.py
@@ -294,6 +301,33 @@ Las comprobaciones de calidad confirman que:
 
 ---
 
+# Emparejamiento con Wikidata
+
+Antes de enriquecer los destinos con más fuentes, cada uno se vincula a su entidad de Wikidata. Así tengo un identificador estable con el que cruzar datos de otras fuentes.
+
+### Cómo funciona
+
+1. Busca el país y obtiene su ID de Wikidata.
+2. Busca candidatos por el nombre de la ciudad.
+3. Descarta los que no pertenecen al país o no tienen coordenadas.
+4. Se queda con el candidato más cercano a las coordenadas del destino (fórmula de Haversine).
+
+Para los casos ambiguos hay un override manual. Por ahora solo Bali (`DPS` → `Q4648`), donde el destino es la isla y no una ciudad.
+
+Por cada destino se guarda el ID, la etiqueta, la descripción, la población, las coordenadas y la distancia en km en:
+
+`data/reference/destination_sources.csv`
+
+La distancia sirve para validar el emparejamiento. En las islas (Mauricio, Bali) es más alta, de 6 a 14 km, porque Wikidata devuelve un punto central de la isla.
+
+### Configuración
+
+La API de Wikidata pide identificarse con un User-Agent. Hay que crear un `.env` con:
+
+`WIKIDATA_USER_AGENT_EMAIL=tu_correo@ejemplo.com`
+
+---
+
 # Principios de diseño
 
 Hay algunas ideas que guían el proyecto desde el principio.
@@ -374,6 +408,7 @@ De cada fuente externa se documentará:
 
 ## 2. Inteligencia de destinos
 
+* [x] Emparejamiento de destinos con Wikidata
 * [ ] Ingesta de OpenStreetMap / Overpass
 * [ ] Recuento de atracciones turísticas
 * [ ] Datos de playas
@@ -476,3 +511,4 @@ Los datos meteorológicos proceden de [Open-Meteo.com](https://open-meteo.com/) 
 distribuyen bajo licencia [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 Los datos diarios originales se han agregado a nivel mensual y se han usado para
 calcular variables derivadas (puntuaciones de temperatura, lluvia, sol y viento).
+Los identificadores y metadatos de los destinos proceden de [Wikidata](https://www.wikidata.org/), publicados bajo licencia [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
