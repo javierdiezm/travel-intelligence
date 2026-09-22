@@ -6,7 +6,7 @@ Travel Intelligence es un proyecto de datos que intenta responder a una pregunta
 
 Quiero construir un sistema de recomendación de viajes que combine distintos tipos de información (clima, precios, vuelos, alojamiento, actividades y características de cada destino) y que sus recomendaciones se puedan explicar, en lugar de depender de una única puntuación opaca.
 
-El proyecto avanza por fases. Empiezo por la capa de datos y el análisis del clima, y más adelante pasaré a la inteligencia de destinos y al motor de recomendación.
+El proyecto avanza por fases. Primero se construye una base de datos fiable y reproducible; después se transforma esa información en variables comparables y, finalmente, se construye el motor de recomendación y la aplicación web.
 
 ---
 
@@ -24,6 +24,9 @@ La primera versión del pipeline de clima ya funciona:
 * Comprobaciones básicas de calidad de datos
 * Datasets procesados guardados en CSV
 * Emparejamiento de los destinos con Wikidata (ID, descripción, población y coordenadas)
+* Sistema de preferencias climáticas del usuario (temperatura, lluvia, sol, viento)
+* Puntuación de clima por destino y mes, adaptada a las preferencias, con pesos dinámicos
+* Filtrado del clima por las fechas concretas del viaje
 
 
 Siguiente paso: usar esos identificadores para enriquecer los destinos con información geográfica y turística mediante OpenStreetMap / Overpass y otras fuentes estructuradas.
@@ -102,7 +105,8 @@ travel-intelligence/
 │       ├── weather_daily.csv
 │       ├── weather_historical_daily.csv
 │       ├── weather_historical_monthly.csv
-│       └── climate_features.csv
+│       ├── climate_features.csv
+│       └── destination_climate.csv
 │
 ├── src/
 │   ├── ingestion/
@@ -115,7 +119,12 @@ travel-intelligence/
 │   │   └── historical_weather.py
 │   │
 │   └── features/
-│       └── climate.py
+│       ├── destinations.py
+│       ├── climate.py
+│       ├── climate_score.py
+│       ├── climate_for_trip.py
+│       ├── preferences.py
+│       └── trip_dates.py
 │
 ├── notebooks/
 │
@@ -301,6 +310,29 @@ Las comprobaciones de calidad confirman que:
 
 ---
 
+# Puntuación según preferencias
+
+Las puntuaciones de clima ya no usan un único óptimo fijo: se adaptan a lo que busca el viajero.
+
+Cada variable climática tiene sus propias opciones de preferencia:
+
+* **Temperatura:** `cold`, `cool`, `pleasant`, `warm`, `very_warm`
+* **Lluvia:** `low`, `very_low`
+* **Sol:** `high`, `very_high`
+* **Viento:** `low`, `very_low`
+
+Todas admiten además `indifferent`, para no penalizar esa variable.
+
+### Pesos dinámicos
+
+Cada variable tiene un peso base (temperatura 40 %, lluvia 30 %, sol 20 %, viento 10 %). Si el usuario marca alguna como indiferente, su peso se reparte entre las demás, así la puntuación final siempre se calcula sobre el 100 % de las preferencias activas.
+
+### Clima por fechas de viaje
+
+`get_trip_months` convierte un rango de fechas en la lista de meses que abarca, y `get_climate_for_trip` filtra el dataset climático a esos meses. Así la puntuación se calcula solo con el clima de los meses en los que realmente se viaja.
+
+---
+
 # Emparejamiento con Wikidata
 
 Antes de enriquecer los destinos con más fuentes, cada uno se vincula a su entidad de Wikidata. Así tengo un identificador estable con el que cruzar datos de otras fuentes.
@@ -420,8 +452,8 @@ De cada fuente externa se documentará:
 ## 3. Motor de recomendación
 
 * [ ] Definir restricciones estrictas
-* [ ] Definir preferencias del usuario
-* [ ] Puntuación de clima
+* [X] Definir preferencias del usuario
+* [X] Puntuación de clima
 * [ ] Puntuación de destinos
 * [ ] Desglose explicable de la recomendación
 * [ ] Comparación de destinos

@@ -176,16 +176,10 @@ def find_wikidata_destination(
         )
 
         if country_id is None:
-
-            print(
-                f'Country not found: {country}'
-            )
-
+            print(f'Country not found: {country}')
             return None
 
-        print(
-            f'Country Wikidata ID: {country_id}'
-        )
+        print(f'Country Wikidata ID: {country_id}')
 
         # --------------------------------------------------
         # 2. Search destination candidates
@@ -266,10 +260,7 @@ def find_wikidata_destination(
             .items()
         ):
 
-            claims = entity.get(
-                'claims',
-                {}
-            )
+            claims = entity.get('claims',{})
 
             # Candidate must have country
             if 'P17' not in claims:
@@ -290,10 +281,7 @@ def find_wikidata_destination(
                 .get('id')
             )
 
-            if (
-                candidate_country_id
-                != country_id
-            ):
+            if (candidate_country_id != country_id):
                 continue
 
             # --------------------------------------------------
@@ -341,12 +329,10 @@ def find_wikidata_destination(
         # 5. Check candidates
         # --------------------------------------------------
         if not candidates:
-
             print(
                 f'No valid candidates found: '
                 f'{city}, {country}'
             )
-
             return None
 
         # --------------------------------------------------
@@ -444,7 +430,6 @@ def find_wikidata_destination(
     # Distance
     # --------------------------------------------------
     if manual_wikidata_id is not None:
-
         distance = calculate_distance_km(
             latitude,
             longitude,
@@ -453,7 +438,6 @@ def find_wikidata_destination(
         )
 
     else:
-
         distance = best_candidate[
             'distance_km'
         ]
@@ -464,22 +448,16 @@ def find_wikidata_destination(
     result = {
         'wikidata_id':
             best_wikidata_id,
-
         'wikidata_label':
             label,
-
         'description':
             description,
-
         'population':
             population,
-
         'wikidata_latitude':
             wikidata_latitude,
-
         'wikidata_longitude':
             wikidata_longitude,
-
         'distance_km':
             distance
     }
@@ -542,35 +520,25 @@ for _, destination in (
         results.append({
             'destination_id':
                 destination_id,
-
             'city':
                 destination['city'],
-
             'country':
                 destination['country'],
-
             'wikidata_id':
                 None,
-
             'wikidata_label':
                 None,
-
             'description':
                 None,
-
             'population':
                 None,
-
             'wikidata_latitude':
                 None,
-
             'wikidata_longitude':
                 None,
-
             'distance_km':
                 None
         })
-
         continue
 
     results.append({
@@ -590,7 +558,6 @@ for _, destination in (
 # ======================================================
 # Create output dataframe
 # ======================================================
-
 wikidata_df = pd.DataFrame(
     results
 )
@@ -606,45 +573,3 @@ output_dir.mkdir(parents=True, exist_ok=True)
 output_file = (output_dir / 'destination_sources.csv')
 
 wikidata_df.to_csv(output_file, index=False)
-
-# ======================================================
-# Validation
-# ======================================================
-print('\n' + '=' * 60)
-print('WIKIDATA MATCHING COMPLETE')
-print('=' * 60)
-
-print(
-    f'\nDestinations processed: '
-    f'{len(wikidata_df)}'
-)
-
-print(
-    f'Matched destinations: '
-    f'{wikidata_df["wikidata_id"].notna().sum()}'
-)
-
-print(
-    f'Unmatched destinations: '
-    f'{wikidata_df["wikidata_id"].isna().sum()}'
-)
-
-print(
-    f'\nOutput file: '
-    f'{output_file}'
-)
-
-print('\nResults:')
-
-print(
-    wikidata_df[
-        [
-            'destination_id',
-            'city',
-            'country',
-            'wikidata_id',
-            'wikidata_label',
-            'distance_km'
-        ]
-    ].to_string(index=False)
-)
