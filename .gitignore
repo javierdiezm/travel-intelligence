@@ -29,8 +29,6 @@ Thumbs.db
 # Raw API data
 data/raw/weather/
 data/raw/weather_historical/
-data/raw/destinations/wikidata/
-data/reference
 
 # Temporary files
 *.tmp

@@ -5,36 +5,12 @@ import pandas as pd
 # ======================================================
 destinations = pd.read_csv('data/raw/destinations.csv')
 
-wikidata = pd.read_csv('data/reference/destination_sources.csv')
-
 climate = pd.read_csv('data/processed/climate_features.csv')
-
-# ======================================================
-# Select Wikidata columns
-# ======================================================
-wikidata = wikidata[
-    [
-        'destination_id',
-        'wikidata_id',
-        'wikidata_label',
-        'description',
-        'population',
-        'wikidata_latitude',
-        'wikidata_longitude',
-        'distance_km'
-    ]
-]
 
 # ======================================================
 # Merge datasets
 # ======================================================
-destination_features = destinations.merge(
-    wikidata,
-    on='destination_id',
-    how='left'
-)
-
-destination_climate = destination_features.merge(
+destination_climate = destinations.merge(
     climate,
     on='destination_id',
     how='left'

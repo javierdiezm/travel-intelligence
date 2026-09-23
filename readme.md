@@ -23,7 +23,6 @@ La primera versión del pipeline de clima ya funciona:
 * Ingeniería de variables climáticas
 * Comprobaciones básicas de calidad de datos
 * Datasets procesados guardados en CSV
-* Emparejamiento de los destinos con Wikidata (ID, descripción, población y coordenadas)
 * Sistema de preferencias climáticas del usuario (temperatura, lluvia, sol, viento)
 * Puntuación de clima por destino y mes, adaptada a las preferencias, con pesos dinámicos
 * Filtrado del clima por las fechas concretas del viaje
@@ -98,9 +97,6 @@ travel-intelligence/
 │   │   ├── weather/
 │   │   └── weather_historical/
 │   │
-│   ├── reference/
-│   │   └── destination_sources.csv
-│   │
 │   └── processed/
 │       ├── weather_daily.csv
 │       ├── weather_historical_daily.csv
@@ -111,8 +107,7 @@ travel-intelligence/
 ├── src/
 │   ├── ingestion/
 │   │   ├── weather.py
-│   │   ├── historical_weather.py
-│   │   └── wikidata.py
+│   │   └── historical_weather.py
 │   │
 │   ├── transformation/
 │   │   ├── weather.py
@@ -333,35 +328,6 @@ Cada variable tiene un peso base (temperatura 40 %, lluvia 30 %, sol 20 %, vient
 
 ---
 
-# Emparejamiento con Wikidata
-
-Antes de enriquecer los destinos con más fuentes, cada uno se vincula a su entidad de Wikidata. Así tengo un identificador estable con el que cruzar datos de otras fuentes.
-
-### Cómo funciona
-
-1. Busca el país y obtiene su ID de Wikidata.
-2. Busca candidatos por el nombre de la ciudad.
-3. Descarta los que no pertenecen al país o no tienen coordenadas.
-4. Se queda con el candidato más cercano a las coordenadas del destino (fórmula de Haversine).
-
-Para los casos ambiguos hay un override manual. Por ahora solo Bali (`DPS` → `Q4648`), donde el destino es la isla y no una ciudad.
-
-Por cada destino se guarda el ID, la etiqueta, la descripción, la población, las coordenadas y la distancia en km en:
-
-`data/reference/destination_sources.csv`
-
-La distancia sirve para validar el emparejamiento. En las islas (Mauricio, Bali) es más alta, de 6 a 14 km, porque Wikidata devuelve un punto central de la isla.
-
-Los identificadores sirven como clave estable para cruzar cualquier fuente futura y para validar coordenadas y población.
-
-### Configuración
-
-La API de Wikidata pide identificarse con un User-Agent. Hay que crear un `.env` con:
-
-`WIKIDATA_USER_AGENT_EMAIL=tu_correo@ejemplo.com`
-
----
-
 # Principios de diseño
 
 Hay algunas ideas que guían el proyecto desde el principio.
@@ -440,11 +406,7 @@ De cada fuente externa se documentará:
 * [x] Ingeniería de variables climáticas
 * [x] Comprobaciones de calidad de datos
 
-## 2. Inteligencia de destinos
-
-* [x] Emparejamiento de destinos con Wikidata
-
-## 3. Motor de recomendación
+## 2. Motor de recomendación
 
 * [ ] Definir restricciones estrictas
 * [X] Definir preferencias del usuario
@@ -455,7 +417,7 @@ De cada fuente externa se documentará:
 * [ ] Análisis de sensibilidad del ranking
 * [ ] Puntuación de final ponderada
 
-## 4. Costes del viaje
+## 3. Costes del viaje
 
 * [ ] Datos de vuelos
 * [ ] Datos de alojamiento
@@ -465,7 +427,7 @@ De cada fuente externa se documentará:
 * [ ] Restricción de duración máxima de vuelo
 * [ ] Duración del viaje
 
-## 5. Aplicación
+## 4. Aplicación
 
 * [ ] Backend con FastAPI
 * [ ] Endpoint de recomendación de destinos
@@ -475,7 +437,7 @@ De cada fuente externa se documentará:
 * [ ] Constructor de viajes
 * [ ] Mapas
 
-## 6. Mejoras futuras
+## 5. Mejoras futuras
 
 * [ ] Catálogo de destinos más grande
 * [ ] Viajes con varios destinos
@@ -542,4 +504,3 @@ Los datos meteorológicos proceden de [Open-Meteo.com](https://open-meteo.com/) 
 distribuyen bajo licencia [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 Los datos diarios originales se han agregado a nivel mensual y se han usado para
 calcular variables derivadas (puntuaciones de temperatura, lluvia, sol y viento).
-Los identificadores y metadatos de los destinos proceden de [Wikidata](https://www.wikidata.org/), publicados bajo licencia [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
