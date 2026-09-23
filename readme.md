@@ -4,7 +4,7 @@ Travel Intelligence es un proyecto de datos que intenta responder a una pregunta
 
 > **¿A dónde viajo según mis fechas, mi presupuesto y mis preferencias?**
 
-Quiero construir un sistema de recomendación de viajes que combine distintos tipos de información (clima, precios, vuelos, alojamiento, actividades y características de cada destino) y que sus recomendaciones se puedan explicar, en lugar de depender de una única puntuación opaca.
+Quiero construir un sistema de recomendación de viajes que combine el clima, el coste estimado y la duración del vuelo, y que sus recomendaciones se puedan explicar, en lugar de depender de una única puntuación opaca.
 
 El proyecto avanza por fases. Primero se construye una base de datos fiable y reproducible; después se transforma esa información en variables comparables y, finalmente, se construye el motor de recomendación y la aplicación web.
 
@@ -29,7 +29,7 @@ La primera versión del pipeline de clima ya funciona:
 * Filtrado del clima por las fechas concretas del viaje
 
 
-Siguiente paso: usar esos identificadores para enriquecer los destinos con información geográfica y turística mediante OpenStreetMap / Overpass y otras fuentes estructuradas.
+Siguiente paso: estimación del coste del viaje (vuelo, alojamiento y gasto diario), usando solo fuentes gratuitas y reproducibles.
 
 ---
 
@@ -352,6 +352,8 @@ Por cada destino se guarda el ID, la etiqueta, la descripción, la población, l
 
 La distancia sirve para validar el emparejamiento. En las islas (Mauricio, Bali) es más alta, de 6 a 14 km, porque Wikidata devuelve un punto central de la isla.
 
+Los identificadores sirven como clave estable para cruzar cualquier fuente futura y para validar coordenadas y población.
+
 ### Configuración
 
 La API de Wikidata pide identificarse con un User-Agent. Hay que crear un `.env` con:
@@ -372,11 +374,9 @@ Por ejemplo:
 
 ```text
 Clima         91
-Playa         97
-Ciudad        82
-Precio        74
+Prespuesto    74
 Vuelos        79
-Actividades   88
+Temporada     88
 ```
 
 en lugar de devolver solo:
@@ -406,6 +406,8 @@ Recomendación
 Por ejemplo, 25 °C se puede representar como una variable climática sin importar si a un viajero le gusta el calor o prefiere temperaturas suaves.
 
 Así, usuarios distintos podrán obtener recomendaciones distintas a partir de los mismos datos de destino.
+
+Además, también las restricciones van por separado. Una restricción excluye destinos ("no quiero vuelos de más de 15 horas"); una preferencia se convierte en una puntuación ("prefiero temperaturas agradables"). Así un destino incompatible no se queda con un 40/100, sino que directamente no aparece.
 
 ---
 
@@ -441,22 +443,17 @@ De cada fuente externa se documentará:
 ## 2. Inteligencia de destinos
 
 * [x] Emparejamiento de destinos con Wikidata
-* [ ] Ingesta de OpenStreetMap / Overpass
-* [ ] Recuento de atracciones turísticas
-* [ ] Datos de playas
-* [ ] Puntos de interés de naturaleza
-* [ ] Museos y atracciones culturales
-* [ ] Indicadores de restaurantes / vida nocturna
-* [ ] Variables a nivel de destino
 
 ## 3. Motor de recomendación
 
 * [ ] Definir restricciones estrictas
 * [X] Definir preferencias del usuario
 * [X] Puntuación de clima
-* [ ] Puntuación de destinos
 * [ ] Desglose explicable de la recomendación
 * [ ] Comparación de destinos
+* [ ] Puntuación de vuelo/duración
+* [ ] Análisis de sensibilidad del ranking
+* [ ] Puntuación de final ponderada
 
 ## 4. Costes del viaje
 
@@ -465,6 +462,8 @@ De cada fuente externa se documentará:
 * [ ] Estimación de gasto diario
 * [ ] Estimación del coste total del viaje
 * [ ] Restricciones de presupuesto
+* [ ] Restricción de duración máxima de vuelo
+* [ ] Duración del viaje
 
 ## 5. Aplicación
 
@@ -521,7 +520,7 @@ Lo interesante es el problema de datos que hay detrás:
 * granularidades distintas
 * información histórica frente a información actual
 * datos que faltan
-* consultas geográficas
+* reestricciones y optimización multicriterio
 * ingeniería de variables
 * preferencias del usuario
 * recomendaciones explicables
